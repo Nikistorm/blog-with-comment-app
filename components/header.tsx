@@ -11,13 +11,19 @@ export default function Header() {
         <nav className='flex justify-between items-center'>
           <div className='flex space-x-4'>
             <Link href='/'>About</Link>
-            <Link href='/posts'>Posts</Link>
+            <Link href='/articles'>Article</Link>
           </div>
           <div className='flex items-center space-x-4'>
             {isAuthenticated && user ? (
               <>
                 <Link
-                  className='px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none'
+                  href='/editor'
+                  className='px-3 py-1.5 text-sm font-medium rounded-full focus:outline-none bg-background text-foreground'
+                >
+                  New Article
+                </Link>
+                <Link
+                  className='px-3 py-1.5 text-sm font-medium rounded-full focus:outline-none bg-primary text-primary-foreground'
                   href='/profile'
                 >
                   {user.nickname || user.name || user.email}
@@ -26,7 +32,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => loginWithRedirect({ redirectUri: window.location.origin })}
-                className='px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none'
+                className='px-3 py-1.5 text-sm font-medium rounded-md focus:outline-none bg-primary text-primary-foreground'
               >
                 Log in
               </button>

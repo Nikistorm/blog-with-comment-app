@@ -1,25 +1,24 @@
-import type { Comment } from "../interfaces";
-import React, { useState } from "react";
-import useSWR from "swr";
-import { useAuth0 } from "@auth0/auth0-react";
+import type { Comment } from '../interfaces';
+import React, { useState } from 'react';
+import useSWR from 'swr';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const fetcher = (url) =>
   fetch(url).then((res) => {
     if (res.ok) {
       return res.json();
     }
-
     throw new Error(`${res.status} ${res.statusText} while fetching: ${url}`);
   });
 
-export default function useComments() {
+export default function useComments(articleSlug?: string) {
   const { getAccessTokenSilently } = useAuth0();
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
 
   const { data: comments, mutate } = useSWR<Comment[]>(
-    "/api/comment",
+    articleSlug ? `/api/comment?slug=${articleSlug}` : null,
     fetcher,
-    { fallbackData: [] },
+    { fallbackData: [] }
   );
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -27,15 +26,15 @@ export default function useComments() {
     const token = await getAccessTokenSilently();
 
     try {
-      await fetch("/api/comment", {
-        method: "POST",
-        body: JSON.stringify({ text }),
+      await fetch('/api/comment', {
+        method: 'POST',
+        body: JSON.stringify({ text, slug: articleSlug }),
         headers: {
           Authorization: token,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
-      setText("");
+      setText('');
       await mutate();
     } catch (err) {
       console.log(err);
@@ -46,12 +45,12 @@ export default function useComments() {
     const token = await getAccessTokenSilently();
 
     try {
-      await fetch("/api/comment", {
-        method: "DELETE",
-        body: JSON.stringify({ comment }),
+      await fetch('/api/comment', {
+        method: 'DELETE',
+        body: JSON.stringify({ comment, slug: articleSlug }),
         headers: {
           Authorization: token,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
       await mutate();

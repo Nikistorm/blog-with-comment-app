@@ -22,3 +22,40 @@ export type Post = {
   excerpt?: string;
   [key: string]: any;
 };
+
+export interface Article {
+  slug: string;
+  title: string;
+  description: string;
+  body: string;
+  tagList: string[];
+  createdAt: string;
+  updatedAt: string;
+  favorited: boolean;
+  favoritesCount: number;
+  author: User;
+}
+
+export interface NewArticle {
+  title: string;
+  description: string;
+  body: string;
+  tagList?: string[];
+}
+
+export interface UpdateArticle {
+  title?: string;
+  description?: string;
+  body?: string;
+}
+
+export interface PaginationParams {
+  offset?: number;
+  limit?: number;
+}
+
+export interface GetArticlesParams extends PaginationParams {
+  tag?: string;
+  author?: string;
+  favorited?: string;
+}
