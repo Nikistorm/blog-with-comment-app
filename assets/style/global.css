@@ -228,14 +228,13 @@
 .prose ol {
   margin: 1.2em 0;
   padding-left: 1.5em;
-  counter-reset: list-counter;
 }
 .prose ul {
   list-style: none;
 }
 .prose ul li {
   position: relative;
-  padding-left: 1.5em;
+  padding-left: 1.2em;
   margin: 0.5em 0;
 }
 .prose ul li::before {
@@ -243,11 +242,11 @@
   position: absolute;
   left: 0;
   top: 0.6em;
-  width: 0.5em;
-  height: 0.5em;
+  width: 0.4em;
+  height: 0.4em;
   border-radius: 50%;
   background-color: var(--primary);
-  opacity: 0.8;
+  opacity: 0.6;
 }
 .prose ol {
   list-style: none;
@@ -255,7 +254,7 @@
 }
 .prose ol li {
   position: relative;
-  padding-left: 2.5em;
+  padding-left: 2em;
   margin: 0.5em 0;
   counter-increment: list-counter;
 }
@@ -263,16 +262,11 @@
   content: counter(list-counter);
   position: absolute;
   left: 0;
-  top: 0;
-  min-width: 1.8em;
-  height: 1.8em;
-  line-height: 1.8em;
-  text-align: center;
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  border-radius: var(--radius-sm);
-  font-size: 0.9em;
+  top: 0.1em;
+  color: var(--primary);
+  font-size: 0.95em;
   font-weight: 500;
+  opacity: 0.8;
 }
 .prose li {
   margin: 0.5em 0;
@@ -284,12 +278,10 @@
 }
 /* 暗色模式下的列表样式调整 */
 .dark .prose ul li::before {
-  background-color: var(--primary);
-  opacity: 0.9;
+  opacity: 0.7;
 }
 .dark .prose ol li::before {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
+  opacity: 0.9;
 }
 .prose a {
   color: var(--primary);
@@ -349,8 +341,8 @@
 }
 
 .prose th {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: var(--primary-foreground);
+  color: var(--primary);
   font-weight: 600;
   text-align: left;
   padding: 0.75em 1em;
