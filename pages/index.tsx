@@ -19,11 +19,8 @@ function HomePage() {
             本项目基于 Next.js、Redis、Tailwind CSS、Auth0 等技术栈构建，适合个人博客、技术分享、团队知识库等多种场景。
           </p>
         </div>
-      </Container>
-
-      <div className='container max-w-4xl m-auto px-4 mt-20'>
         <img src='https://picsum.photos/seed/picsum/960/640' alt='random' width={960} height={640} />
-      </div>
+      </Container>
     </>
   );
 }

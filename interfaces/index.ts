@@ -1,9 +1,6 @@
-export type User = {
-  name: string;
-  picture: string;
-  sub: string;
-  email?: string;
-};
+import type { User as Auth0User } from '@auth0/auth0-react';
+
+export type User = Auth0User;
 
 export type Comment = {
   id: string;
@@ -41,6 +38,7 @@ export interface NewArticle {
   description: string;
   body: string;
   tagList?: string[];
+  author?: User;
 }
 
 export interface UpdateArticle {

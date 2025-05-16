@@ -226,17 +226,70 @@
 }
 .prose ul,
 .prose ol {
-  margin: 1em 0 1em 1.5em;
+  margin: 1.2em 0;
   padding-left: 1.5em;
+  counter-reset: list-counter;
 }
 .prose ul {
-  list-style: disc inside;
+  list-style: none;
+}
+.prose ul li {
+  position: relative;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+.prose ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background-color: var(--primary);
+  opacity: 0.8;
 }
 .prose ol {
-  list-style: decimal inside;
+  list-style: none;
+  counter-reset: list-counter;
+}
+.prose ol li {
+  position: relative;
+  padding-left: 2.5em;
+  margin: 0.5em 0;
+  counter-increment: list-counter;
+}
+.prose ol li::before {
+  content: counter(list-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  min-width: 1.8em;
+  height: 1.8em;
+  line-height: 1.8em;
+  text-align: center;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+  font-weight: 500;
 }
 .prose li {
-  margin: 0.3em 0;
+  margin: 0.5em 0;
+  line-height: 1.7;
+}
+.prose li > ul,
+.prose li > ol {
+  margin: 0.5em 0;
+}
+/* 暗色模式下的列表样式调整 */
+.dark .prose ul li::before {
+  background-color: var(--primary);
+  opacity: 0.9;
+}
+.dark .prose ol li::before {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
 }
 .prose a {
   color: var(--primary);
@@ -249,7 +302,7 @@
 }
 .prose code {
   background: var(--muted);
-  color: var(--accent-foreground);
+  color: var(--primary);
   padding: 0.2em 0.4em;
   border-radius: 0.3em;
   font-size: 0.95em;
@@ -279,4 +332,106 @@
   border: none;
   border-top: 1px solid var(--border);
   margin: 2em 0;
+}
+
+/* 表格样式 */
+.prose table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5em 0;
+  font-size: 0.95em;
+  border: 1px solid var(--chart-2);
+  border-top: 4px solid var(--primary);
+  /* border-radius: var(--radius); */
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.prose th {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75em 1em;
+  border-bottom: 2px solid var(--chart-2);
+  border-right: 1px solid var(--chart-2);
+}
+
+.prose th:last-child {
+  border-right: none;
+}
+
+.prose td {
+  padding: 0.75em 1em;
+  border-bottom: 1px solid var(--chart-2);
+  border-right: 1px solid var(--chart-2);
+  vertical-align: top;
+}
+
+.prose td:last-child {
+  border-right: none;
+}
+
+.prose tr:last-child td {
+  border-bottom: none;
+}
+
+.prose tr:nth-child(even) {
+  background: var(--chart-2/10);
+}
+
+.prose tr:hover {
+  background: var(--chart-3/10);
+}
+
+/* 确保表格在暗色模式下也有良好的显示效果 */
+.dark .prose th {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.dark .prose tr:nth-child(even) {
+  background: var(--chart-2/20);
+}
+
+.dark .prose tr:hover {
+  background: var(--chart-3/20);
+}
+
+/* Loading Bar Animation */
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
+  background-size: 200% 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  animation: loading-bar 1s ease-in-out infinite;
 }

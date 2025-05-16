@@ -1,23 +1,45 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth0 } from '@auth0/auth0-react';
 import type { NewArticle } from '../../interfaces';
 import useArticle from '../../hooks/useArticle';
-
-const EmptyArticle: NewArticle = {
-  title: '',
-  description: '',
-  body: '',
-  tagList: [],
-};
+import Container from '@/components/container';
 
 export default function Editor() {
   const router = useRouter();
   const { user } = useAuth0();
-  const { article, setArticle, onCreate } = useArticle();
+  const { article, setArticle, onCreate, onUpdate } = useArticle();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
+  const isEditing = Boolean(router.query.slug);
+
+  // 如果是编辑模式，获取文章数据
+  useEffect(() => {
+    const fetchArticle = async () => {
+      if (router.query.slug) {
+        setLoading(true);
+        try {
+          const response = await fetch(`/api/article?slug=${router.query.slug}`);
+          const data = await response.json();
+          if (data) {
+            setArticle({
+              title: data.title,
+              description: data.description,
+              body: data.body,
+              tagList: data.tagList || [],
+              author: user,
+            });
+          }
+        } catch (err) {
+          setError('Failed to fetch article');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchArticle();
+  }, [router.query.slug, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -56,7 +78,11 @@ export default function Editor() {
     setLoading(true);
     setError(null);
     try {
-      await onCreate(e);
+      if (isEditing) {
+        await onUpdate(router.query.slug as string, article);
+      } else {
+        await onCreate(e);
+      }
       router.push('/articles');
     } catch (err: any) {
       setError(err.message || 'Unknown error');
@@ -66,8 +92,8 @@ export default function Editor() {
   };
 
   return (
-    <div className='max-w-2xl mx-auto py-10'>
-      <h1 className='text-2xl font-bold mb-6'>New Article</h1>
+    <Container>
+      <h1 className='text-2xl font-bold mb-6'>{isEditing ? 'Edit Article' : 'New Article'}</h1>
       <form onSubmit={handleSubmit} className='space-y-6 bg-white p-6 rounded shadow'>
         <div>
           <label className='block mb-1 font-medium'>Title</label>
@@ -125,19 +151,36 @@ export default function Editor() {
             name='body'
             value={article.body}
             onChange={handleChange}
-            className='w-full border rounded px-3 py-2 h-48 font-mono'
+            className='w-full border rounded px-3 py-2 h-160 font-mono'
             required
           />
         </div>
         {error && <div className='text-red-600'>{error}</div>}
         <button
           type='submit'
-          className='px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50'
+          className='relative px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
           disabled={loading}
         >
-          {loading ? 'Publishing...' : 'Publish'}
+          <span className={loading ? 'opacity-0' : 'opacity-100'}>{isEditing ? 'Save Changes' : 'Publish'}</span>
+          {loading && (
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <svg
+                className='animate-spin h-5 w-5 text-primary-foreground'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+              >
+                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' />
+                <path
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                />
+              </svg>
+            </div>
+          )}
         </button>
       </form>
-    </div>
+    </Container>
   );
 }

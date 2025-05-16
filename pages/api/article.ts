@@ -9,22 +9,94 @@ const getArticleKey = (slug: string) => `${ARTICLE_PREFIX}${slug}`;
 
 // 获取所有文章（支持分页）
 async function fetchArticles(req: NextApiRequest, res: NextApiResponse) {
-  const { page = '1', pageSize = '5', slug } = req.query;
+  const { page = '1', pageSize = '10', slug, author } = req.query;
   if (slug && typeof slug === 'string') {
     // 获取单篇文章
     const data = await redis.get(getArticleKey(slug));
     if (!data) return res.status(404).json({ error: 'Not found' });
     return res.status(200).json(JSON.parse(data));
   }
+
   const pageNum = parseInt(page as string, 10) || 1;
-  const size = parseInt(pageSize as string, 10) || 5;
+  const size = parseInt(pageSize as string, 10) || 10;
   const start = (pageNum - 1) * size;
   const stop = pageNum * size - 1;
-  // 按更新时间倒序获取 slug
+
+  // 如果指定了作者，使用 Redis 管道批量获取文章
+  if (author && typeof author === 'string') {
+    const pipeline = redis.pipeline();
+    const allSlugs = await redis.zrevrange(ARTICLE_ZSET, 0, -1);
+
+    // 批量获取所有文章
+    allSlugs.forEach((slug) => {
+      pipeline.get(getArticleKey(slug));
+    });
+
+    const results = await pipeline.exec();
+    if (!results) {
+      return res.status(500).json({ error: 'Failed to fetch articles' });
+    }
+
+    // 过滤并解析文章
+    const filteredArticles = results
+      .map(([err, data]) => {
+        if (err || !data) return null;
+        try {
+          const article = JSON.parse(data as string) as Article;
+          return article.author?.email === author ? article : null;
+        } catch (e) {
+          console.error('Error parsing article:', e);
+          return null;
+        }
+      })
+      .filter((article): article is Article => article !== null);
+
+    // 在过滤后的结果中进行分页
+    const pagedArticles = filteredArticles.slice(start, stop + 1);
+
+    return res.status(200).json({
+      articles: pagedArticles,
+      total: filteredArticles.length,
+      page: pageNum,
+      pageSize: size,
+    });
+  }
+
+  // 如果没有指定作者，使用 Redis 管道批量获取分页文章
+  const pipeline = redis.pipeline();
   const slugs = await redis.zrevrange(ARTICLE_ZSET, start, stop);
-  const articles = await Promise.all(slugs.map((slug: string) => redis.get(getArticleKey(slug))));
-  const allArticles = articles.filter(Boolean).map((a) => JSON.parse(a as string) as Article);
-  return res.status(200).json(allArticles);
+
+  // 批量获取文章
+  slugs.forEach((slug) => {
+    pipeline.get(getArticleKey(slug));
+  });
+
+  const results = await pipeline.exec();
+  if (!results) {
+    return res.status(500).json({ error: 'Failed to fetch articles' });
+  }
+
+  // 解析文章
+  const articles = results
+    .map(([err, data]) => {
+      if (err || !data) return null;
+      try {
+        return JSON.parse(data as string) as Article;
+      } catch (e) {
+        console.error('Error parsing article:', e);
+        return null;
+      }
+    })
+    .filter((article): article is Article => article !== null);
+
+  const total = await redis.zcard(ARTICLE_ZSET);
+
+  return res.status(200).json({
+    articles,
+    total,
+    page: pageNum,
+    pageSize: size,
+  });
 }
 
 // 创建文章

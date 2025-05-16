@@ -21,11 +21,17 @@ const fetcher = (url) =>
   });
 
 export default function useArticle() {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, user } = useAuth0();
   const [article, setArticle] = useState<NewArticle>(EmptyArticle);
+  const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
 
   // 获取文章列表
-  const { data: articles, isLoading, mutate } = useSWR<Article[]>('/api/article', fetcher, { fallbackData: [] });
+  const { data, isLoading, mutate } = useSWR(
+    `/api/article?page=${page}&pageSize=10${activeTab === 'my' && user?.email ? `&author=${user.email}` : ''}`,
+    fetcher,
+    { fallbackData: { articles: [], total: 0, page: 1, pageSize: 10 } }
+  );
 
   // 创建文章
   const onCreate = async (e: React.FormEvent) => {
@@ -35,14 +41,14 @@ export default function useArticle() {
     try {
       await fetch('/api/article', {
         method: 'POST',
-        body: JSON.stringify({ article }),
+        body: JSON.stringify({ article: { ...article, author: user } }),
         headers: {
           Authorization: token,
           'Content-Type': 'application/json',
         },
       });
-      setArticle(EmptyArticle);
       await mutate();
+      setArticle(EmptyArticle);
     } catch (err) {
       console.log(err);
     }
@@ -80,5 +86,19 @@ export default function useArticle() {
     }
   };
 
-  return { articles, isLoading, article, setArticle, onCreate, onDelete, onUpdate };
+  return {
+    articles: data?.articles || [],
+    total: data?.total || 0,
+    pageSize: data?.pageSize || 10,
+    isLoading,
+    article,
+    setArticle,
+    onCreate,
+    onDelete,
+    onUpdate,
+    page,
+    setPage,
+    activeTab,
+    setActiveTab,
+  };
 }
