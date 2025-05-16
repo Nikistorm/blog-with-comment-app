@@ -21,7 +21,14 @@ export default function ArticlesPage() {
     total,
     pageSize,
   } = useArticle();
-  const { user } = useAuth0();
+  const { user, isAuthenticated } = useAuth0();
+
+  // 如果未登录且当前是 My Articles 标签，自动切换到 All Articles
+  useEffect(() => {
+    if (!isAuthenticated && activeTab === 'my') {
+      setActiveTab('all');
+    }
+  }, [isAuthenticated, activeTab, setActiveTab]);
 
   // 渲染前两行 markdown 为 html，使用防抖优化
   useEffect(() => {
@@ -89,8 +96,10 @@ export default function ArticlesPage() {
             activeTab === 'my'
               ? 'text-primary border-b-2 border-primary'
               : 'text-muted-foreground hover:text-foreground'
-          }`}
-          onClick={() => setActiveTab('my')}
+          } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => isAuthenticated && setActiveTab('my')}
+          disabled={!isAuthenticated}
+          title={!isAuthenticated ? 'Please login to view your articles' : ''}
         >
           My Articles
         </button>

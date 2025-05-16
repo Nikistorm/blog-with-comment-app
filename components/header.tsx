@@ -41,8 +41,21 @@ export default function Header() {
               <>
                 <Link
                   href='/editor'
-                  className='px-3 py-1.5 text-sm font-medium rounded-full transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none bg-background text-foreground'
+                  className='inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors border border-primary/20 text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/20'
                 >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  >
+                    <path d='M12 5v14M5 12h14' />
+                  </svg>
                   New Article
                 </Link>
                 <Link

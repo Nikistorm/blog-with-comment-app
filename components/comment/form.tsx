@@ -1,4 +1,4 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth0 } from '@auth0/auth0-react';
 
 type CommentFormProps = {
   text: string;
@@ -6,36 +6,33 @@ type CommentFormProps = {
   onSubmit: (e: React.FormEvent) => Promise<void>;
 };
 
-export default function CommentForm({
-  text,
-  setText,
-  onSubmit,
-}: CommentFormProps) {
+export default function CommentForm({ text, setText, onSubmit }: CommentFormProps) {
   const { isAuthenticated, logout, loginWithPopup } = useAuth0();
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className='space-y-4'>
       <textarea
-        className="flex w-full max-h-40 p-3 rounded resize-y bg-gray-200 text-gray-900 placeholder-gray-500"
-        rows={2}
-        placeholder={
-          isAuthenticated
-            ? `What are your thoughts?`
-            : "Please login to leave a comment"
-        }
+        className='w-full p-4 rounded-lg resize-y bg-card text-foreground placeholder-muted-foreground border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-colors'
+        rows={3}
+        placeholder={isAuthenticated ? `What are your thoughts?` : 'Please login to leave a comment'}
         onChange={(e) => setText(e.target.value)}
         value={text}
         disabled={!isAuthenticated}
       />
 
-      <div className="flex items-center mt-4">
+      <div className='flex items-center gap-4'>
         {isAuthenticated ? (
-          <div className="flex items-center space-x-6">
-            <button className="py-2 px-4 rounded bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-700">
-              Send
+          <div className='flex items-center gap-4'>
+            <button
+              type='submit'
+              className='px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+              disabled={!text.trim()}
+            >
+              Send Comment
             </button>
             <button
-              className="text-gray-500"
+              type='button'
+              className='px-4 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
               onClick={() => logout({ returnTo: window.location.origin })}
             >
               Log Out
@@ -43,11 +40,11 @@ export default function CommentForm({
           </div>
         ) : (
           <button
-            type="button"
-            className="py-2 px-4 rounded bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-700"
+            type='button'
+            className='px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors'
             onClick={() => loginWithPopup()}
           >
-            Log In
+            Log In to Comment
           </button>
         )}
       </div>
