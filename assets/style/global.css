@@ -272,15 +272,48 @@
   margin: 0.5em 0;
   line-height: 1.7;
 }
-.prose li > ul,
+/* 嵌套列表样式 */
+.prose li > ul {
+  counter-reset: none;
+}
+.prose li > ul li {
+  padding-left: 1.2em;
+}
+.prose li > ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 50%;
+  background-color: var(--primary);
+  opacity: 0.6;
+}
 .prose li > ol {
-  margin: 0.5em 0;
+  counter-reset: nested-counter;
+}
+.prose li > ol li {
+  padding-left: 2em;
+  counter-increment: nested-counter;
+}
+.prose li > ol li::before {
+  content: counter(nested-counter);
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  color: var(--primary);
+  font-size: 0.95em;
+  font-weight: 500;
+  opacity: 0.8;
 }
 /* 暗色模式下的列表样式调整 */
-.dark .prose ul li::before {
+.dark .prose ul li::before,
+.dark .prose li > ul li::before {
   opacity: 0.7;
 }
-.dark .prose ol li::before {
+.dark .prose ol li::before,
+.dark .prose li > ol li::before {
   opacity: 0.9;
 }
 .prose a {
